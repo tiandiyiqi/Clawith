@@ -29,6 +29,7 @@ function ToolsManager({ agentId }: { agentId: string }) {
     const [configData, setConfigData] = useState<Record<string, any>>({});
     const [configJson, setConfigJson] = useState('');
     const [configSaving, setConfigSaving] = useState(false);
+    const [toolTab, setToolTab] = useState<'platform' | 'installed'>('platform');
 
     const loadTools = async () => {
         try {
@@ -166,29 +167,46 @@ function ToolsManager({ agentId }: { agentId: string }) {
             </div>
         ));
 
+    const activeTools = toolTab === 'platform' ? systemTools : agentInstalledTools;
+
     return (
         <>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {/* Platform Tools Section */}
-                {systemTools.length > 0 && (
-                    <>
-                        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            🔧 {t('agent.tools.platformTools', 'Platform Tools')}
-                            <span style={{ fontSize: '11px', fontWeight: 400, color: 'var(--text-tertiary)' }}>({systemTools.length})</span>
-                        </div>
-                        {renderToolGroup(groupByCategory(systemTools))}
-                    </>
-                )}
+                {/* Tab Bar */}
+                <div style={{ display: 'flex', gap: '2px', background: 'var(--bg-tertiary)', borderRadius: '8px', padding: '3px' }}>
+                    <button
+                        onClick={() => setToolTab('platform')}
+                        style={{
+                            flex: 1, padding: '7px 12px', border: 'none', borderRadius: '6px', cursor: 'pointer',
+                            fontSize: '12px', fontWeight: 600, transition: 'all 0.2s',
+                            background: toolTab === 'platform' ? 'var(--bg-primary)' : 'transparent',
+                            color: toolTab === 'platform' ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                            boxShadow: toolTab === 'platform' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                        }}
+                    >
+                        🔧 {t('agent.tools.platformTools', 'Platform Tools')} ({systemTools.length})
+                    </button>
+                    <button
+                        onClick={() => setToolTab('installed')}
+                        style={{
+                            flex: 1, padding: '7px 12px', border: 'none', borderRadius: '6px', cursor: 'pointer',
+                            fontSize: '12px', fontWeight: 600, transition: 'all 0.2s',
+                            background: toolTab === 'installed' ? 'var(--bg-primary)' : 'transparent',
+                            color: toolTab === 'installed' ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                            boxShadow: toolTab === 'installed' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                        }}
+                    >
+                        🤖 {t('agent.tools.agentInstalled', 'Agent-Installed Tools')} ({agentInstalledTools.length})
+                    </button>
+                </div>
 
-                {/* Agent-Installed Tools Section */}
-                {agentInstalledTools.length > 0 && (
-                    <>
-                        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px', marginTop: systemTools.length > 0 ? '8px' : 0, paddingTop: systemTools.length > 0 ? '12px' : 0, borderTop: systemTools.length > 0 ? '1px solid var(--border-subtle)' : 'none' }}>
-                            🤖 {t('agent.tools.agentInstalled', 'Agent-Installed Tools')}
-                            <span style={{ fontSize: '11px', fontWeight: 400, color: 'var(--text-tertiary)' }}>({agentInstalledTools.length})</span>
-                        </div>
-                        {renderToolGroup(groupByCategory(agentInstalledTools))}
-                    </>
+                {/* Tool List */}
+                {activeTools.length > 0 ? (
+                    renderToolGroup(groupByCategory(activeTools))
+                ) : (
+                    <div className="card" style={{ textAlign: 'center', padding: '30px', color: 'var(--text-tertiary)' }}>
+                        {toolTab === 'installed' ? t('agent.tools.noInstalled', 'No agent-installed tools yet') : t('common.noData')}
+                    </div>
                 )}
             </div>
             {tools.length === 0 && (
