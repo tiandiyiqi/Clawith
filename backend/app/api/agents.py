@@ -524,6 +524,8 @@ async def delete_agent(
         "agent_tools",
         "agent_relationships",
         "gateway_messages",
+        "published_pages",
+        "notifications",
     ]
 
     for table in cleanup_tables:
